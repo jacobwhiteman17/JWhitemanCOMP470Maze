@@ -56,7 +56,6 @@ public class Maze470_multipath
         f.add(mazecomp);
         f.setVisible(true);
 
-
         //have the robot wander around in its own thread
         if(robotActive)
         {
@@ -229,7 +228,6 @@ public class Maze470_multipath
         maze[MWIDTH-1][MHEIGHT-1]^=RIGHT;
     }
 
-    //1. doGuided working
     //2.  make Maze state:
     //using the eight puzzle as a template: State(), isSolved(), canMove(int,int), allmoves(), move(int,int), alladjacent()
     //3.  dfs.  print out with println each room you visit, make sure it gets to 29,29
@@ -237,20 +235,6 @@ public class Maze470_multipath
     //5.  call doGuided( with directions ) - does dfs work?
     //6.  put in the manhattan and do astar
 
-    //- can move method: take a dir as input, returns boolean
-    //from canmove, build an allmoves (from python example in class)
-
-    //public State[] adjacentStates()
-    //		{
-    //			//go through each valid direction, get the state, make an array of these, return it
-    //			int[] dirs=allMoves();
-    //			//make an array of states, same size
-    //			State[] adj=new State[dirs.length];
-    //			//call move on each valid direction
-    //			for(int i=0; i<dirs.length; i++)
-    //				adj[i]=move(dirs[i]);
-    //			return adj;
-    //		}
 
     //public static void DFS(int x, int y){
     // State start = new State(x,y);
@@ -295,38 +279,28 @@ public class Maze470_multipath
 
     public static void doMazeGuided(int[] directionArray)
     {
-        //directionArray = new int[]{LEFT,RIGHT,UP,DOWN};
-        //int dir = RIGHT;
-
-        while(robotX!=MWIDTH-1 || robotY!=MHEIGHT-1)
-        {
-            int x = robotX;
-            int y = robotY;
-
-            for(int i: directionArray)
+        for(int i : directionArray)
             {
+                int x = robotX;
+                int y = robotY;
+
                 if((maze[x][y]&i)==0)
                 {
-                    if(i==LEFT&&) robotX--;//if dir is left and there isn't a wall
-                    if(i==RIGHT&&) robotX++;//if dir is right and there isn't a wall
-                    if(i==UP&&) robotY--;//if dir is up and there isn't a wall
-                    if(i==DOWN&&) robotY++;//if dir is down and there isn't a wall
+                    if(i==LEFT) robotX--;//if dir is left and there isn't a wall
+                    if(i==RIGHT) robotX++;//if dir is right and there isn't a wall
+                    if(i==UP) robotY--;//if dir is up and there isn't a wall
+                    if(i==DOWN) robotY++;//if dir is down and there isn't a wall
                 }
-                /*if((maze[x][y]&i)!=0)
-                {
-                    if(i==LEFT) robotX++;
-                    if(i==RIGHT) robotX--;
-                    if(i==UP) robotY++;
-                    if(i==DOWN) robotY--;
-                }*/
-            }
-            crumbs[x][y]=true;
+                else
+                    continue;
 
-            mazecomp.repaint();
-            try{ Thread.sleep(SPEED); } catch(Exception e) { }
-        }
-        //for each element in dir
-        //if((maze[x][y]&dir)==0)
+                crumbs[x][y]=true;
+
+                mazecomp.repaint();
+                try{ Thread.sleep(SPEED); } catch(Exception e) { }
+
+            }
+        System.out.println("Done");
     }
 
     //the robot will wander around aimlessly until it happens to stumble on the exit
@@ -349,6 +323,7 @@ public class Maze470_multipath
                 if(dir==UP) robotY--;
                 if(dir==DOWN) robotY++;
             }
+            System.out.println(maze[x][y]&dir);
 
             //leave a crumb
             crumbs[x][y]=true;
@@ -399,5 +374,47 @@ public class Maze470_multipath
                 g.fillOval(robotX*BLOCK+1,robotY*BLOCK+1,BLOCK-2,BLOCK-2);
             }
         }
+    }
+
+    class State
+    {
+        //instance vars
+
+
+        public State()
+        {
+
+        }
+
+        //public State[] adjacentStates()
+        //		{
+        //			//go through each valid direction, get the state, make an array of these, return it
+        //			int[] dirs=allMoves();
+        //			//make an array of states, same size
+        //			State[] adj=new State[dirs.length];
+        //			//call move on each valid direction
+        //			for(int i=0; i<dirs.length; i++)
+        //				adj[i]=move(dirs[i]);
+        //			return adj;
+        //		}
+
+        //public boolean canMove(int dir)
+        // {
+        // can move method: take a dir as input, returns boolean
+        // }
+        //from canmove, build an allmoves (from python example in class)
+
+        //public int[] allMoves()
+        // {
+        // int count = 0;
+        //if(canMove(UP)) count++;
+        //if(canMove(DOWN)) count++;
+        //if(canMove(LEFT)) count++;
+        //if(canMove(RIGHT)) count++;
+        //
+        ////make the array
+        //int[] moves=new int[count];
+        // }
+
     }
 }
