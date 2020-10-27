@@ -1,3 +1,4 @@
+//Jacob Whiteman
 package com.company;
 import java.awt.*;
 import java.util.ArrayList;
@@ -306,7 +307,7 @@ public class Maze470_multipath
             if (i.direction == RIGHT) mov = "LEFT";
             if (i.direction == UP) mov = "DOWN";
             if (i.direction == DOWN) mov = "UP";
-            System.out.println(mov + " to (" + i.xPos + ", " + i.yPos + ") ");
+
         }
         for(int i: movements)
             System.out.println(i);
@@ -592,6 +593,34 @@ public class Maze470_multipath
         {
             State child = new State(x,y);
             child.parent = this;
+            moveCount += moveCount;
+
+            if(direction == LEFT)
+            {
+                child.direction = LEFT;
+                xPos--;
+            }
+            if(direction == RIGHT)
+            {
+                child.direction = RIGHT;
+                xPos++;
+            }
+            if(direction == UP)
+            {
+                child.direction = UP;
+                yPos--;
+            }
+            if(direction == DOWN)
+            {
+                child.direction = DOWN;
+                yPos++;
+            }
+            return child;
+
+        /*public State move(int x,int y)
+        {
+            State child = new State(x,y);
+            child.parent = this;
             child.direction = direction;
             moveCount += moveCount;
 
@@ -611,7 +640,7 @@ public class Maze470_multipath
             {
                 yPos++;
             }
-            return child;
+            return child;*/
 
         }
 
