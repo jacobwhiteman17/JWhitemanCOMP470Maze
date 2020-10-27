@@ -64,8 +64,8 @@ public class Maze470_multipath
             new Thread(new Runnable(){
                 public void run() {
                     //int[] test = new int[]{RIGHT,DOWN,RIGHT,DOWN,RIGHT,DOWN,RIGHT,DOWN};
-                    DFS(robotX,robotY);
-                    //AStar(robotX,robotY);
+                    //DFS(robotX,robotY);
+                    AStar(robotX,robotY);
                     //doMazeRandomWalk();
                     //doMazeGuided(test);
                 }
@@ -307,10 +307,11 @@ public class Maze470_multipath
             if (i.direction == RIGHT) mov = "LEFT";
             if (i.direction == UP) mov = "DOWN";
             if (i.direction == DOWN) mov = "UP";
+            System.out.println(mov + " to (" + i.xPos + ", " + i.yPos + ") ");
 
         }
         for(int i: movements)
-            System.out.println(i);
+            //System.out.println(i);
         doMazeGuided(movements);
     }
 
