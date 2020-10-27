@@ -1,7 +1,6 @@
 package com.company;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Stack;
 import javax.swing.*;
 
 public class Maze470_multipath
@@ -63,9 +62,11 @@ public class Maze470_multipath
         {
             new Thread(new Runnable(){
                 public void run() {
-                    //int[] test = new int[]{RIGHT,DOWN,DOWN,LEFT,UP};
+                    //int[] test = new int[]{RIGHT,DOWN,RIGHT,DOWN,RIGHT,DOWN,RIGHT,DOWN};
                     DFS(robotX,robotY);
+                    //AStar(robotX,robotY);
                     //doMazeRandomWalk();
+                    //doMazeGuided(test);
                 }
             }).start();
         }
@@ -230,40 +231,21 @@ public class Maze470_multipath
         maze[MWIDTH-1][MHEIGHT-1]^=RIGHT;
     }
 
-    //2.  make Maze state:
-    //using the eight puzzle as a template: State(), isSolved(), canMove(int,int), allmoves(), move(int,int), alladjacent()
-    //3.  dfs.  print out with println each room you visit, make sure it gets to 29,29
-    //4.  put in the parent state link, after dfs while loop, push states and then pop them all
-    //5.  call doGuided( with directions ) - does dfs work?
-    //6.  put in the manhattan and do astar
-
-
-    //public int manhattan()
-    //(MWIDTH-x) + (MHEGIHT-y)
-
-/*    public static void DFS_funct(int x, int y, boolean[][] seen) {
-        State current = new State(x, y);
-        ArrayList<State> queue = new ArrayList<State>();
-        seen = true;
-        State[] neighbors = current.adjacentStates();
-        for (State n: neighbors) {
-            queue.addAll(DFS_funct(n.xPos, n.yPos, seen));
-        }
-        return(queue);
-    }*/
 
     public static void DFS(int x, int y) {
         State start = new State(x, y);
         ArrayList<State> queue = new ArrayList<State>();
+
         boolean[][] visited = new boolean[MWIDTH][MHEIGHT];
         queue.add(start);
-        System.out.println("1st Queue: "+queue.size());
+
+        int dir = 0;
 
         State end = null;
+        State current = null;
 
         while (queue.size() > 0) {
-            State current = queue.remove(queue.size() - 1);
-            System.out.println("2nd Queue: "+queue.size());
+            current = queue.remove(queue.size() - 1);
             visited[current.xPos][current.yPos] = true;
             State[] neighbors = current.adjacentStates();
             if (current.isSolved())
@@ -272,9 +254,7 @@ public class Maze470_multipath
                 break;
             }
             for (State i : neighbors) {
-                System.out.println("XPOS: " + i.xPos);
-                System.out.println("YPOS: " + i.yPos);
-                int dir = 0;
+                dir = 0;
                 if (current.xPos == i.xPos - 1)
                     dir = LEFT;
                 if (current.xPos == i.xPos + 1)
@@ -284,127 +264,180 @@ public class Maze470_multipath
                 if (current.yPos == i.yPos + 1)
                     dir = DOWN;
                 if (i.canMove(dir)) {
-                    if (!visited[i.xPos][i.yPos]) {
+                    if (!visited[i.xPos][i.yPos])
+                    {
                         State newRoom = new State(i.xPos, i.yPos);
                         newRoom.parent = current;
                         newRoom.direction = dir;
                         queue.add(newRoom);
-                        System.out.println("3rd Queue: "+queue.size());
                     }
+
                     if (visited[i.xPos][i.yPos]) {
                         continue;
                     }
                 }
             }
         }
-        System.out.println("4th Queue: "+queue.size());
-
         ArrayList<State> list = new ArrayList<State>();
-        int[]movements = new int[list.size()];
         int iterator = 0;
-        while (true)
+        list.add(end);
+        System.out.println("");
+
+        while(end.parent!= null)
         {
-            if(end.parent!= null)
-            {
-                end = end.parent;
-                list.add(end);
-                for(State i: list)
-                {
-                    int move = i.direction;
-                    movements[iterator] = move;
-                    iterator++;
-                }
-
-            }
-            if(end.parent == null)
+            end = end.parent;
+            list.add(end);
+            if (end.parent == null)
             {
                 break;
             }
         }
+        list = reverseArrayList(list);
+        System.out.println("");
+
+        int[]movements = new int[list.size()];
+        for(State i: list.subList(1,list.size()))
+        {
+            int move = i.direction;
+            movements[iterator] = move;
+            iterator++;
+            String mov = "";
+            if (i.direction == LEFT) mov = "RIGHT";
+            if (i.direction == RIGHT) mov = "LEFT";
+            if (i.direction == UP) mov = "DOWN";
+            if (i.direction == DOWN) mov = "UP";
+            System.out.println(mov + " to (" + i.xPos + ", " + i.yPos + ") ");
+        }
+        for(int i: movements)
+            System.out.println(i);
         doMazeGuided(movements);
+    }
+
+    public static void AStar(int x, int y) {
+        State start = new State(x, y);
+        ArrayList<State> queue = new ArrayList<State>();
+
+        boolean[][] visited = new boolean[MWIDTH][MHEIGHT];
+        queue.add(start);
+
+        int dir = 0;
+        int movesMade = 0;
+
+        State end = null;
+        State current = null;
+
+        while (queue.size() > 0) {
+            movesMade++;
+            int bestIDX = 0;
+            for (int i=0; i<queue.size();i++)
+            {
+                if(queue.get(i).manhatten()+queue.get(i).moveCount <queue.get(bestIDX).manhatten()+queue.get(i).moveCount)
+                    bestIDX = i;
+            }
 
 
+            current = queue.remove(bestIDX);
+            visited[current.xPos][current.yPos] = true;
+            State[] neighbors = current.adjacentStates();
+            if (current.isSolved())
+            {
+                end = current;
+                break;
+            }
+            for (State i : neighbors) {
+                dir = 0;
+                if (current.xPos == i.xPos - 1)
+                    dir = LEFT;
+                if (current.xPos == i.xPos + 1)
+                    dir = RIGHT;
+                if (current.yPos == i.yPos - 1)
+                    dir = UP;
+                if (current.yPos == i.yPos + 1)
+                    dir = DOWN;
+                if (i.canMove(dir)) {
+                    if (!visited[i.xPos][i.yPos])
+                    {
 
-        /*int[] guide = new int[100];
-        int q = 0;
-        while (true) {
-            if (itr.parent != null) {
-                itr = itr.parent;
-                guide[q] = itr.direction;
-                q++;
-            } else {
+                        State newRoom = new State(i.xPos, i.yPos);
+                        newRoom.parent = current;
+                        newRoom.direction = dir;
+                        queue.add(newRoom);
+                    }
+
+                    if (visited[i.xPos][i.yPos]) {
+                        continue;
+                    }
+                }
+            }
+        }
+        ArrayList<State> list = new ArrayList<State>();
+        int iterator = 0;
+        list.add(end);
+        System.out.println("");
+
+        while(end.parent!= null)
+        {
+            end = end.parent;
+            list.add(end);
+            if (end.parent == null)
+            {
                 break;
             }
         }
-        doMazeGuided(guide);*/
+        list = reverseArrayList(list);
+        System.out.println("");
+
+        int[]movements = new int[list.size()];
+        for(State i: list)
+        {
+            int move = i.direction;
+            movements[iterator] = move;
+            iterator++;
+            String mov = "";
+            if (i.direction == LEFT) mov = "RIGHT";
+            if (i.direction == RIGHT) mov = "LEFT";
+            if (i.direction == UP) mov = "DOWN";
+            if (i.direction == DOWN) mov = "UP";
+            System.out.println(mov + " to (" + i.xPos + ", " + i.yPos + ") ");
+        }
+
+        doMazeGuided(movements);
 
     }
 
-
-    /*public static void DFS(int x, int y)
+    public static ArrayList<State> reverseArrayList(ArrayList<State> alist)//found this method online, can't find link but if you need it I can find it
     {
-        State start = new State(x,y);
-        ArrayList<State> queue = new ArrayList<State>();
-        boolean[][]visited = new boolean[MWIDTH][MHEIGHT];
-        queue.add(start);
-
-        while(queue.size()>0)
-        {
-            State current = queue.remove(queue.size()-1);
-            visited[current.xPos][current.xPos]=true;
-            State[] neighbors = current.adjacentStates();
-            if(current.isSolved())
-                break;
-            for(State i: neighbors)
-            {
-                if(i.canMove(i.direction))
-                {
-                    if((!visited[i.xPos+1][i.yPos]))
-                    System.out.println("XPOS: "+i.xPos);
-                    System.out.println("YPOS: "+i.yPos);
-                    System.out.println(neighbors.toString());
-                    {
-                        State newRoom = new State(i.xPos, i.yPos);
-                        newRoom.parent = current;
-                        if(current.xPos == i.xPos-1)
-                            newRoom.direction = LEFT;
-                        if(current.xPos == i.xPos+1)
-                            newRoom.direction = RIGHT;
-                        if(current.yPos == i.yPos-1)
-                            newRoom.direction = UP;
-                        if(current.yPos == i.yPos+1)
-                            newRoom.direction = DOWN;
-                        queue.add(newRoom);
-                    }
-                    if(visited[i.xPos][i.yPos]){
-                        continue;}
-                }
-            }*/
+        ArrayList<State> revArrayList = new ArrayList<State>();
+        for (int i = alist.size() - 1; i >= 0; i--) {
+            revArrayList.add(alist.get(i));
+        }
+        return revArrayList;
+    }
 
 
     public static void doMazeGuided(int[] directionArray)
     {
         for(int i : directionArray)
+        {
+            int x = robotX;
+            int y = robotY;
+
+            if((maze[x][y]&i)==0)
             {
-                int x = robotX;
-                int y = robotY;
-
-                if((maze[x][y]&i)==0)
-                {
-                    if(i==LEFT) robotX--;//if dir is left and there isn't a wall
-                    if(i==RIGHT) robotX++;//if dir is right and there isn't a wall
-                    if(i==UP) robotY--;//if dir is up and there isn't a wall
-                    if(i==DOWN) robotY++;//if dir is down and there isn't a wall
-                }
-                else
-                    continue;
-
-                crumbs[x][y]=true;
-
-                mazecomp.repaint();
-                try{ Thread.sleep(SPEED); } catch(Exception e) { }
-
+                if(i==LEFT) robotX--;
+                if(i==RIGHT) robotX++;
+                if(i==UP) robotY--;
+                if(i==DOWN) robotY++;
             }
+            else
+                continue;
+
+            crumbs[x][y]=true;
+
+            mazecomp.repaint();
+            try{ Thread.sleep(SPEED); } catch(Exception e) { }
+
+        }
         System.out.println("Done");
     }
 
@@ -500,8 +533,6 @@ public class Maze470_multipath
 
         public boolean canMove(int dir)
         {
-            //System.out.println("Maze/Wall Pos: "+(maze[xPos][yPos]&dir));
-            //System.out.println("xPos: "+xPos+" yPos: "+yPos);
             if((maze[xPos][yPos]&dir)==0)
                 return true;
             else
@@ -521,7 +552,7 @@ public class Maze470_multipath
                 count++;
 
             int[] moves = new int[(count)];
-            //need to put moves in the array now
+
             count = 0;
             if(canMove(UP))
                 moves[count++]=UP;
@@ -538,7 +569,6 @@ public class Maze470_multipath
         {
             int[]dirArray = allMoves();
             State[] adjacent = new State[dirArray.length];
-            //System.out.println(adjacent);
 
             for(int i=0;i<dirArray.length;i++)
             {
@@ -563,7 +593,6 @@ public class Maze470_multipath
             State child = new State(x,y);
             child.parent = this;
             child.direction = direction;
-            System.out.println(direction);
             moveCount += moveCount;
 
             if(child.direction == LEFT)
