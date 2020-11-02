@@ -63,11 +63,9 @@ public class Maze470_multipath
         {
             new Thread(new Runnable(){
                 public void run() {
-                    //int[] test = new int[]{RIGHT,DOWN,RIGHT,DOWN,RIGHT,DOWN,RIGHT,DOWN};
                     //DFS(robotX,robotY);
                     AStar(robotX,robotY);
                     //doMazeRandomWalk();
-                    //doMazeGuided(test);
                 }
             }).start();
         }
@@ -302,16 +300,7 @@ public class Maze470_multipath
             int move = i.direction;
             movements[iterator] = move;
             iterator++;
-            String mov = "";
-            if (i.direction == LEFT) mov = "RIGHT";
-            if (i.direction == RIGHT) mov = "LEFT";
-            if (i.direction == UP) mov = "DOWN";
-            if (i.direction == DOWN) mov = "UP";
-            System.out.println(mov + " to (" + i.xPos + ", " + i.yPos + ") ");
-
         }
-        for(int i: movements)
-            //System.out.println(i);
         doMazeGuided(movements);
     }
 
@@ -375,7 +364,6 @@ public class Maze470_multipath
         ArrayList<State> list = new ArrayList<State>();
         int iterator = 0;
         list.add(end);
-        System.out.println("");
 
         while(end.parent!= null)
         {
@@ -395,19 +383,13 @@ public class Maze470_multipath
             int move = i.direction;
             movements[iterator] = move;
             iterator++;
-            String mov = "";
-            if (i.direction == LEFT) mov = "RIGHT";
-            if (i.direction == RIGHT) mov = "LEFT";
-            if (i.direction == UP) mov = "DOWN";
-            if (i.direction == DOWN) mov = "UP";
-            System.out.println(mov + " to (" + i.xPos + ", " + i.yPos + ") ");
         }
 
         doMazeGuided(movements);
 
     }
 
-    public static ArrayList<State> reverseArrayList(ArrayList<State> alist)//found this method online, can't find link but if you need it I can find it
+    public static ArrayList<State> reverseArrayList(ArrayList<State> alist)
     {
         ArrayList<State> revArrayList = new ArrayList<State>();
         for (int i = alist.size() - 1; i >= 0; i--) {
@@ -423,6 +405,11 @@ public class Maze470_multipath
         {
             int x = robotX;
             int y = robotY;
+
+            if(i==LEFT) i=RIGHT;
+            else if(i==RIGHT) i=LEFT;
+            else if(i==UP) i=DOWN;
+            else if(i==DOWN) i=UP;
 
             if((maze[x][y]&i)==0)
             {
